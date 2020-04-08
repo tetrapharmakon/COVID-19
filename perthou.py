@@ -19,11 +19,15 @@ regions = [{"nome": "Abruzzo", "abitanti": 1311580},
            {"nome": "Puglia", "abitanti": 4999891},
            {"nome": "Sardegna", "abitanti": 3729641},
            {"nome": "Sicilia", "abitanti": 541380},
-           {"nome": "Toscana", "abitanti":},
+           {"nome": "Toscana", "abitanti": 3729641},
            {"nome": "Umbria", "abitanti": 882015},
            {"nome": "Valle d'Aosta", "abitanti": 125666},
            {"nome": "Veneto", "abitanti": 4905854}
            ]
+
+
+def sanitize(string):
+    return string.replace(" ", "").replace("'", "").replace(".", "").lower()
 
 
 def perthou_nazionale(scale_factor):
@@ -44,4 +48,25 @@ def perthou_nazionale(scale_factor):
             json.dump(data, outfile)
 
 
+def perthou_regioni(scale_factor, reg):
+    with open('dati-json-regxreg/' + sanitize(reg) + '-data.json') as json_file:
+        data = json.load(json_file)
+        for thing in data:
+            thing["ricoverati_con_sintomi"] *= scale_factor
+            thing["terapia_intensiva"] *= scale_factor
+            thing["totale_ospedalizzati"] *= scale_factor
+            thing["isolamento_domiciliare"] *= scale_factor
+            thing["totale_attualmente_positivi"] *= scale_factor
+            thing["nuovi_attualmente_positivi"] *= scale_factor
+            thing["dimessi_guariti"] *= scale_factor
+            thing["deceduti"] *= scale_factor
+            thing["totale_casi"] *= scale_factor
+            thing["tamponi"] *= scale_factor
+        with open('dati-json-regxreg/' + sanitize(reg) + '-data-permille.json', 'w') as outfile:
+            json.dump(data, outfile)
+
+
 perthou_nazionale(1000/60483973)
+
+for reg in regions:
+    perthou_regioni(1000/reg['abitanti'], reg['nome'])
